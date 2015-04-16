@@ -15,6 +15,7 @@ import shutil
 import distutils.spawn
 import pkg_resources
 import datetime
+import re
 from pkg_resources import resource_filename
 from jinja2 import Template, Environment, FileSystemLoader
 from .config import Config
@@ -90,6 +91,7 @@ class Uberdoc:
     def preprocess(self, files):
         template_dir = os.path.join(self.out_dir, self.conf["in_dir"])
         env = Environment(loader=FileSystemLoader(template_dir))
+        env.filters['regex_replace'] = self.regex_replace
         doc_version = self.version()
         user_conf_items = self.conf.user_items()
 
@@ -113,6 +115,16 @@ class Uberdoc:
                 content_enc = content.encode('utf-8')
                 fout.write(content_enc)
 
+    # Custom filter method
+    def regex_replace(self, s, find, replace):
+        """A non-optimal implementation of a regex filter"""
+        r = []
+        for line in s.split("\n"):
+            r.append( re.sub(find, replace, line) )
+
+        return "\n".join(r)
+
+    
 
 
     def generate_doc(self, files, pdf=False, verbose=False):
