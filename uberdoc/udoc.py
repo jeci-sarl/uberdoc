@@ -89,7 +89,7 @@ class Uberdoc:
             if "=" in line:
                 kv = line.split("=")
                 self.doc_var[kv[0].strip()] = kv[1].strip()
-            else:
+            elif line != "" :
                 files.append(path.join(line, line + self.conf["input_ext"]))
                 
         return files
