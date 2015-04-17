@@ -42,6 +42,7 @@ class Uberdoc:
         self.in_dir = self.prefix_path(self.conf["in_dir"])
         self.style_dir = self.prefix_path(self.conf["style_dir"])
         self.template_dir = self.prefix_path("templates")
+        self.doc_var = {}
 
     def cmd(self, cmdStr, verbose=False, cwd='.', echo=False, env=[]):
         """Executes cmdStr as shell command in the working directory provided
@@ -85,7 +86,12 @@ class Uberdoc:
         """Uses the toc to generate chapter relative paths to the input files"""
         files = []
         for line in toc_lines:
-            files.append(path.join(line, line + self.conf["input_ext"]))
+            if "=" in line:
+                kv = line.split("=")
+                self.doc_var[kv[0].strip()] = kv[1].strip()
+            else:
+                files.append(path.join(line, line + self.conf["input_ext"]))
+                
         return files
 
     def preprocess(self, files):
@@ -106,6 +112,7 @@ class Uberdoc:
                 },
                 "conf": user_conf_items
             }
+            template_vars.update(self.doc_var)
 
             template = env.get_template(input_file)
             content = template.render(template_vars)
